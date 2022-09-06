@@ -1,0 +1,77 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block script %}
+    <script src="{% static 'network/profile.js' %}"></script>
+    <script src="{% static 'network/posts.js' %}"></script>
+{% endblock %}
+
+{% block body %}
+    <h1 style="text-align: center; margin-right: 1.4rem;" id="usname">{{username}}</h1>
+    <div class="profile-info">
+        <div class="info-div">
+            <h3 id="posts">{{post_amount}}</h3>
+            <h6>Posts</h6>
+        </div>
+        <div class="info-div">
+            <h3 id="followers">{{followers}}</h3>
+            <h6>Followers</h6>
+        </div>
+        <div class="info-div">
+            <h3 id="following">{{following}}</h3>
+            <h6>Following</h6>
+        </div>
+    </div>
+    <div class="container" id="follow-btn">
+    </div>
+    {% for post in page_obj %}
+    <div class="post-view">
+        <div class="card-body">
+            <div style="display: flex;">
+                <h4 class="card-title" style="margin-right:auto"><a href="{% url 'network:profile' username=post.creator.username %}">{{post.creator.username}}</a></h4>
+                {% if post.creator.username == user.username %}
+                <div id="edit-btn-{{ post.id }}">
+                    <button class="btn btn-primary edit" onclick = "edit_post('{{ post.id }}', '{{ post.creator.username }}')">Edit <i class="	fa fa-pencil" style="font-size:20px; margin-left: 5px;"></i></button>
+                </div>
+                {% endif %}
+            </div>
+            <div>
+                <h5 class="card-title">{{post.title}}</h5>
+                <div id="content-show-{{ post.id }}">
+                    <p class="card-text">{{post.content}}</p>
+                    <div id="likes" style="display: flex;">
+                        {% if user in post.likes.all %}
+                        <p id="like-button-{{ post.id }}" class="btn-like"  onclick = "like('{{ post.id }}', '{{ post.creator.username }}')"><i class="fa fa-thumbs-up" style="font-size:24px; color: blue;"></i></p>
+                        {% else %}
+                        <p id="like-button-{{ post.id }}" class="btn-like" onclick = "like('{{ post.id }}', '{{ post.creator.username }}')"><i class="fa fa-thumbs-o-up" style="font-size:24px"></i></p>
+                        {% endif %}
+                        <p id="likes-count-{{ post.id }}" style="margin-left: 0.3rem; margin-top: 0.25rem;">{{post.likes.all.count}}</p>
+                    </div>
+                </div>
+                {% if post.creator.username == user.username %}
+                <div id="content-edit-{{ post.id }}" style="display: none;">
+                    <div class="form-group">
+                        <textarea id="content-textarea-{{ post.id }}" name="content" rows="4" cols="50"></textarea>
+                    </div>
+                    <button class="btn btn-primary" type="submit" value="Save" onclick = "save_post('{{ post.id }}', '{{ post.creator.username }}')">Save</button>
+                </div>
+                {% endif %}
+                <small style="position: absolute; bottom: 0.17rem; right: 0.25rem;">{{post.date_created}}</small>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    <ul class="pagination">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+        </li>
+        {% endif %}
+        <li class="page-item active" aria-current="page">
+            <a class="page-link disabled" href="#">{{ page_obj.number }}</a>
+        </li>
+        {% if page_obj.has_next %}
+        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+        {% endif %}
+    </ul>
+{% endblock %}
